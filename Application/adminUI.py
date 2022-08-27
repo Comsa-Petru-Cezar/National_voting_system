@@ -1,46 +1,39 @@
 import PySimpleGUI as sg
-from Application.DB import DBManager
+from Application.voter import voter
+from Application.admin import admin
 
 
 
 
-
-def login_check(db, admin):
-    a = db.check_admin(admin)
-    if a:
-        print("login")
-        return True
-    else:
-        return False
-
-def login_fail(db, win):
-    win["text"].update("Login Failed. Please try again.")
-    win.refresh()
-
-def admin_login(db):
+def admin_login():
     layout = [
         [sg.Text("Welcome?", key="text")],
-        [sg.Text("ID           "), sg.InputText()],
-        [sg.Text("Password"), sg.InputText()],
+        [sg.Text("ID           "), sg.InputText(key="id")],
+        [sg.Text("Password"), sg.InputText(key="pass")],
         [sg.Button("Login")]
     ]
-    login_win = sg.Window(title="National Voting Systm", layout=layout)
+    login_win = sg.Window(title="National Voting System", layout=layout)
 
     while True:
         event, values = login_win.read()
         if event == "Login":
-            if login_check(db, (values[0], values[1])):
+            current_admin = admin(values["id"], values["pass"])
+            if current_admin.login():
                 login_win.close()
                 return True
             else:
-                login_fail(db, login_win)
+                login_win["text"].update("Login Failed. Please try again.")
+                login_win["id"].update("")
+                login_win["pass"].update("")
+                login_win.refresh()
         elif event == sg.WIN_CLOSED:
             break
 
     login_win.close()
     return False
 
-def insert_voter(db):
+
+def insert_voter():
     layout = [
         [sg.Text("Voter:", key="text1"), ],
         [sg.Text("CNP"), sg.InputText(key="cnp")],
@@ -54,19 +47,21 @@ def insert_voter(db):
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Insert Voter":
-
-            if db.insert_in_voter_table(voter=(values["cnp"])):
-
-                insert_voter_win["text1"].update("Voter added", text_color="white")
-                insert_voter_win.refresh()
-            else:
+            current_voter = voter(values["cnp"])
+            if current_voter.in_db():
                 insert_voter_win["text1"].update("Invalid values", text_color="red")
+                insert_voter_win.refresh()
+
+            else:
+                current_voter.add_to_db()
+                insert_voter_win["text1"].update("Voter added", text_color="white")
                 insert_voter_win.refresh()
             insert_voter_win["cnp"].update("")
 
     insert_voter_win.close()
 
-def remove_voter(db):
+
+def remove_voter():
     layout = [
         [sg.Text("Voter:", key="text1"), ],
         [sg.Text("CNP"), sg.InputText(key="cnp")],
@@ -80,7 +75,9 @@ def remove_voter(db):
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Remove Voter":
-            if not db.remove_in_voter_table((values["cnp"])):
+            current_voter = voter(values["cnp"])
+            if current_voter.in_db():
+                current_voter.remove_from_db()
                 remove_voter_win["text1"].update("Voter Removed", text_color="black")
                 remove_voter_win.refresh()
             else:
@@ -89,7 +86,8 @@ def remove_voter(db):
             remove_voter_win["cnp"].update("")
     remove_voter_win.close()
 
-def add_admin(db):
+
+def add_admin():
     layout = [
         [sg.Text("Voter:", key="text1"), ],
         [sg.Text("ID"), sg.InputText(key="id")],
@@ -104,7 +102,9 @@ def add_admin(db):
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Insert Admin":
-            if db.insert_in_admin_table((values["id"], values["pass"])):
+            add_admin = admin(values["id"], values["pass"])
+            if add_admin.in_db():
+                add_admin.add_to_db()
                 insert_admin_win["text1"].update("Admin Added", text_color="white")
                 insert_admin_win.refresh()
             else:
@@ -115,13 +115,28 @@ def add_admin(db):
     insert_admin_win.close()
 
 
-def admin_main(db):
+def manage_elections():
+    layout = [
+        [sg.Button("Create Election")],
+        [sg.Button("Done")]
+    ]
+
+    manage_elections_win = sg.Window(title="Manage Elections", layout=layout)
+
+    while True:
+        event, values = manage_elections_win.read()
+        if event == "Done" or event == sg.WIN_CLOSED:
+            break
+
+    manage_elections_win.close()
+
+
+def admin_main():
     layout = [
         [sg.Button("Insert Voters")],
         [sg.Button("Remove Voters")],
         [sg.Button("Other Updates")],
-        [sg.Button("Create Election")],
-        [sg.Button("Inspect Election")],
+        [sg.Button("Manage Elections")],
         [sg.Button("Add Admin")],
         [sg.Button("Done")]
     ]
@@ -132,19 +147,18 @@ def admin_main(db):
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Insert Voters":
-            insert_voter(db)
+            insert_voter()
         if event == "Remove Voters":
-            remove_voter(db)
+            remove_voter()
         if event == "Add Admin":
-            add_admin(db)
+            add_admin()
+        if event == "Manage Elections":
+            manage_elections()
 
     admin_win.close()
 
 
 def app_Admin():
-    db = DBManager()
+    if admin_login():
+        admin_main()
 
-    if admin_login(db):
-       admin_main(db)
-
-    db.close()

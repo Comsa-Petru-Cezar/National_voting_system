@@ -1,6 +1,7 @@
 #todo
 #
 
+
 import sqlite3
 
 class DBManager():
@@ -26,53 +27,44 @@ class DBManager():
                     )""")
         self.conn.commit()
 
-    def insert_in_voter_table(self, voter=()):
-
-        if self.select_from_voter_table(voter) == None:
-            self.c.execute("INSERT INTO voters VALUES ('{}')".format(voter[0]))
-            self.conn.commit()
-            return True
-        return False
-
-    def insert_in_admin_table(self, admin): #admins=((),())
-        if self.select_from_admin_table(id=admin[0]):
-            return False
-        self.c.execute("INSERT INTO admins VALUES ('{}','{}')".format(admin[0],admin[1]))
+    def create_election_tables_table(self):
+        self.c.execute("""CREATE TABLE election_tables (
+                            name text,
+                            period date
+                            )""")
         self.conn.commit()
-        return True
 
+    def creat_election_table(self):
+        pass
 
-    def select_from_voter_table(self, voter=()):
-        self.c.execute("SELECT * FROM voters WHERE CNP='{}'".format(voter[0]))
+    def insert_in_voter_table(self, current_voter=None):
+
+        self.c.execute("INSERT INTO voters VALUES ('{}')".format(current_voter.cnp))
+        self.conn.commit()
+
+    def insert_in_admin_table(self, add_admin=None):
+        self.c.execute("INSERT INTO admins VALUES ('{}','{}')".format(add_admin.id,add_admin.password))
+        self.conn.commit()
+
+    def select_from_voter_table(self, current_voter=None):
+        self.c.execute("SELECT * FROM voters WHERE CNP='{}'".format(current_voter.cnp))
         select = self.c.fetchone()
         #print(select)#c.fetchmany(5)/.fetchone()
         return select
 
-    def select_from_admin_table(self, admin=(), id=None):
-        if id != None:
-            self.c.execute("SELECT * FROM admins WHERE id='{}'".format(id))
-        else:
-            self.c.execute("SELECT * FROM admins WHERE id='{}' and password='{}'".format(admin[0], admin[1]))
+    def select_from_admin_table(self, current_admin=None, id=None):
+        if current_admin:
+            self.c.execute("SELECT * FROM admins WHERE id='{}' and password='{}'".format(current_admin.id, current_admin.password))
+        elif id:
+            self.c.execute("SELECT * FROM admins WHERE id='{}' and password='{}'".format(current_admin.id))
         select = self.c.fetchone()
         #print(select)  # c.fetchmany(5)/.fetchone()
         return select
 
-    def check_admin(self, admin):
-        self.c.execute("SELECT * FROM admins WHERE id='{}' and password='{}'".format(admin[0], admin[1]))
-        select = self.c.fetchone()
-        # print(select)  # c.fetchmany(5)/.fetchone()
-        if select != None:
-            return True
-        else:
-            return False
+    def remove_from_voter_table(self, current_voter=None):
+        self.c.execute("DELETE FROM voters WHERE ('{}')".format(current_voter.cnp))
+        self.conn.commit()
 
-    def remove_in_voter_table(self, voter=()): #voters = ()
-        if self.select_from_voters_table(voter[0]):
-            print(self.select_from_voters_table(voter[0]))
-            self.c.execute("DELETE FROM voters WHERE ('{}')".format(voter[0]))
-            self.conn.commit()
-            return True
-        return False
 
 
 
