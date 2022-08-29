@@ -5,7 +5,7 @@ class voter():
     def __init__(self, cnp):
         self.cnp = cnp
 
-    def in_db(self):
+    def is_in_db(self):
         db = DBManager()
         if db.select_from_voter_table(self):
             return True
@@ -16,7 +16,9 @@ class voter():
 
     def add_to_db(self):
         db = DBManager()
-        db.insert_in_voter_table(self)
+        if self.self_check():
+
+            db.insert_in_voter_table(self)
         db.close()
 
     def remove_from_db(self):
@@ -26,3 +28,6 @@ class voter():
 
     def __repr__(self):
         return "'{}'".format(self.cnp)
+
+    def self_check(self):
+        return True

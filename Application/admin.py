@@ -15,7 +15,7 @@ class admin():
             db.close()
             return False
 
-    def in_db(self):
+    def is_in_db(self):
         db = DBManager()
         if db.select_from_admin_table(self):
             db.close()
@@ -28,3 +28,6 @@ class admin():
         db = DBManager()
         db.insert_in_admin_table(add_admin=self)
         db.close()
+
+    def self_check(self):
+        return True
