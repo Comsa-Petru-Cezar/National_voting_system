@@ -1,6 +1,8 @@
 from Application.DB import DBManager
+from Application.candidate import Candidate
 
-class election():
+
+class Election():
     def __init__(self, election_from_db=None, name=None, number_of_candidates=None, begin=None, end=None, transferable_vote=None):
         if election_from_db:
             self.name = election_from_db[0]
@@ -27,7 +29,7 @@ class election():
         db = DBManager()
         elections_list = []
         for e in db.select_from_election_tables_table():
-            elections_list.append(election(e))
+            elections_list.append(Election(election_from_db=e))
         db.close()
         return elections_list
 
@@ -44,6 +46,14 @@ class election():
         db = DBManager()
         db.insert_in_election_tables_table(self)
         db.create_election_table(self)
+        db.close()
+
+    def get_candidates(self):
+        db = DBManager()
+        candidates_list = []
+        for c in db.select_from_election_table(self):
+            candidates_list.append(Candidate(c))
+        return candidates_list
         db.close()
 
     def self_check(self):

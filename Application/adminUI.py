@@ -1,9 +1,8 @@
 import PySimpleGUI as sg
-from Application.voter import voter
-from Application.admin import admin
-from Application.election import election
-
-
+from Application.voter import Voter
+from Application.admin import Admin
+from Application.election import Election
+from Application.candidate import Candidate
 
 def admin_login():
     layout = [
@@ -17,7 +16,7 @@ def admin_login():
     while True:
         event, values = login_win.read()
         if event == "Login":
-            current_admin = admin(values["id"], values["pass"])
+            current_admin = Admin(values["id"], values["pass"])
             if current_admin.login():
                 login_win.close()
                 return True
@@ -47,7 +46,7 @@ def insert_voter():
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Insert Voter":
-            current_voter = voter(values["cnp"])
+            current_voter = Voter(values["cnp"])
             if not current_voter.is_in_db() and current_voter.self_check():
                 current_voter.add_to_db()
                 insert_voter_win["text1"].update("Voter added", text_color="white")
@@ -74,7 +73,7 @@ def remove_voter():
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Remove Voter":
-            current_voter = voter(values["cnp"])
+            current_voter = Voter(values["cnp"])
             if current_voter.is_in_db():
                 current_voter.remove_from_db()
                 remove_voter_win["text1"].update("Voter Removed", text_color="black")
@@ -101,7 +100,7 @@ def add_admin():
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Insert Admin":
-            add_admin = admin(values["id"], values["pass"])
+            add_admin = Admin(values["id"], values["pass"])
             if not add_admin.is_in_db() and add_admin.self_check():
                 add_admin.add_to_db()
                 insert_admin_win["text1"].update("Admin Added", text_color="white")
@@ -132,7 +131,7 @@ def create_election():
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Create Election":
-            current_election = election(name=values["name"], number_of_candidates=values["number"], begin=values["begin"], end=values["end"], transferable_vote=values["tv"])
+            current_election = Election(name=values["name"], number_of_candidates=values["number"], begin=values["begin"], end=values["end"], transferable_vote=values["tv"])
             if not current_election.is_in_db() and current_election.self_check():
                 current_election.add_to_db()
                 create_election_win["text1"].update("Election Created", text_color="white")
@@ -151,14 +150,71 @@ def create_election():
     create_election_win.close()
 
 
-def manage_elections():
-    elections_list = election.get_elections()
+def add_candidate(current_election):
+    layout = [
+        [sg.Text("Add Candidate", key="text")],
+        [sg.Text("Candidate name: "), sg.InputText(key="name")],
+        [sg.Button("Add Candidate")],
+        [sg.Button("Done")]
+                      ]
+
+    add_candidate_win = sg.Window(title="Add Candidate", layout=layout)
+
+    while True:
+        event, values = add_candidate_win.read()
+
+        if event == "Done" or event == sg.WIN_CLOSED:
+            break
+
+        if event == "Add Candidate":
+            current_candidate = Candidate(name=values["name"],)
+            if not current_candidate.is_in_db(current_election):
+                add_candidate_win["text"].update("Candidate added", text_color="black")
+                current_candidate.add_to_db(current_election=current_election)
+            else:
+                add_candidate_win["text"].update("Invalid values for candidate", text_color="red")
+            add_candidate_win["name"].update("")
+            add_candidate_win.refresh()
+
+    add_candidate_win.close()
+
+
+def manage_election(current_election):
     layout = []
-    for e in elections_list:
-        layout.append([sg.Button(" '{}' -- ('{}','{}') ".format(e.name, e.begin, e.end))])
-    layout.append([sg.Button("Create Election")])
+    candidates_list = current_election.get_candidates()
+    for c in candidates_list:
+        layout.append([sg.Text("{} -- {}".format(c.name, c.votes)), sg.Button("Remove", key="{}".format(c.name))])
+    layout.append([sg.Button("Add Candidate")])
     layout.append([sg.Button("Done")])
 
+    manage_election_win = sg.Window(title="Manage Election '{}'".format(current_election.name), layout=layout)
+
+    while True:
+        event, values = manage_election_win.read()
+
+        if event == "Done" or event == sg.WIN_CLOSED:
+            break
+
+        if event == "Add Candidate":
+            manage_election_win.close()
+            add_candidate(current_election)
+            break
+        if event:
+            for c in candidates_list:
+                if event == "{}".format(c.name):
+                    c.remove_from_db(current_election)
+                    manage_election_win.close()
+                    break
+
+    manage_election_win.close()
+
+
+def manage_elections():
+    elections_list = Election.get_elections()
+    layout = []
+    for e in elections_list:
+        layout.append([sg.Button(" {} -- ({},{}) ".format(e.name, e.begin, e.end))])
+    layout.append([sg.Button("Done")])
 
     manage_elections_win = sg.Window(title="Manage Elections", layout=layout)
 
@@ -167,10 +223,12 @@ def manage_elections():
 
         if event == "Done" or event == sg.WIN_CLOSED:
             break
-        for e in elections_list:
-            if event == " '{}' -- ('{}','{}') ".format(e.name, e.begin, e.end):
-                print(e)
-
+        if event:
+            for e in elections_list:
+                if event == " {} -- ({},{}) ".format(e.name, e.begin, e.end):
+                    manage_elections_win.close()
+                    manage_election(e)
+                    break
 
     manage_elections_win.close()
 

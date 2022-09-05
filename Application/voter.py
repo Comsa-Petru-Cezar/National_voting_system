@@ -1,6 +1,6 @@
 from Application.DB import DBManager
 
-class voter():
+class Voter():
 
     def __init__(self, cnp):
         self.cnp = cnp
@@ -17,7 +17,6 @@ class voter():
     def add_to_db(self):
         db = DBManager()
         if self.self_check():
-
             db.insert_in_voter_table(self)
         db.close()
 

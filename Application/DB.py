@@ -38,23 +38,37 @@ class DBManager():
         self.conn.commit()
 
     def create_election_table(self, current_election):
-        self.c.execute("""CREATE TABLE '{}' (
-                                    candidate text,
-                                    votes int
-                                    )""".format(current_election.name))
+        if current_election.transferable_vote:
+            text = """CREATE TABLE {} (
+                                                    candidate text,""".format(current_election.name)
+            for c in range(1, current_election.number_of_candidates+1):
+                text = text + """
+                choice {} int,""".format(c)
+            text = text + """
+            )"""
+            self.c.execute("""CREATE TABLE '{}' (
+                                                    candidate text,
+                                                    votes int
+                                                    )""".format(current_election.name))
+        else:
+            self.c.execute("""CREATE TABLE '{}' (
+                                        index int,
+                                        candidate text,
+                                        votes int
+                                        )""".format(current_election.name))
         self.conn.commit()
 
     def insert_in_voter_table(self, current_voter=None):
 
-        self.c.execute("INSERT INTO voters VALUES ('{}')".format(current_voter.cnp))
+        self.c.execute("INSERT INTO voters VALUES ({})".format(current_voter.cnp))
         self.conn.commit()
 
     def insert_in_admin_table(self, add_admin=None):
-        self.c.execute("INSERT INTO admins VALUES ('{}','{}')".format(add_admin.id, add_admin.password))
+        self.c.execute("INSERT INTO admins VALUES ({},'{}')".format(add_admin.id, add_admin.password))
         self.conn.commit()
 
     def insert_in_election_tables_table(self, current_election=None):
-        self.c.execute("INSERT INTO election_tables VALUES ('{}','{}','{}','{}','{}')".format(current_election.name,
+        self.c.execute("INSERT INTO election_tables VALUES ('{}',{},{},{},{})".format(current_election.name,
                                                                                 current_election.number_of_candidates,
                                                                                 current_election.begin,
                                                                                 current_election.end,
@@ -63,9 +77,16 @@ class DBManager():
                        )
         self.conn.commit()
 
+    def insert_in_election_table(self, current_election=None, current_candidate=None):
+        if current_election.transferable_vote:
+            pass
+        else:
+            self.c.execute("INSERT INTO '{}' VALUES('{}',0)".format(current_election.name, current_candidate.name))
+        self.conn.commit()
+
     def select_from_voter_table(self, current_voter=None):
         if current_voter:
-            self.c.execute("SELECT * FROM voters WHERE CNP='{}'".format(current_voter.cnp))
+            self.c.execute("SELECT * FROM voters WHERE CNP={}".format(current_voter.cnp))
         else:
             self.c.execute("SELECT * FROM voters")
         select = self.c.fetchone()
@@ -74,9 +95,9 @@ class DBManager():
 
     def select_from_admin_table(self, current_admin=None, id=None):
         if current_admin:
-            self.c.execute("SELECT * FROM admins WHERE id='{}' and password='{}'".format(current_admin.id, current_admin.password))
+            self.c.execute("SELECT * FROM admins WHERE id={} and password='{}'".format(current_admin.id, current_admin.password))
         elif id:
-            self.c.execute("SELECT * FROM admins WHERE id='{}' and password='{}'".format(current_admin.id))
+            self.c.execute("SELECT * FROM admins WHERE id={} and password='{}'".format(current_admin.id))
         select = self.c.fetchone()
         #print(select)  # c.fetchmany(5)/.fetchone()
         return select
@@ -86,17 +107,22 @@ class DBManager():
             self.c.execute("SELECT * FROM election_tables WHERE name='{}'".format(current_election.name))
         else:
             self.c.execute("SELECT * FROM election_tables")
-        select = self.c.fetchall()
-        #print(select)#c.fetchmany(5)/.fetchone()
-        return select
+        return self.c.fetchall()
+
+    def select_from_election_table(self, current_election, current_candidate=None):
+        if current_candidate:
+            self.c.execute("Select * FROM '{}' WHERE candidate='{}'".format(current_election.name, current_candidate.name))
+        else:
+            self.c.execute("Select * FROM '{}'".format(current_election.name))
+        return self.c.fetchall()
 
     def remove_from_voter_table(self, current_voter=None):
-        self.c.execute("DELETE FROM voters WHERE ('{}')".format(current_voter.cnp))
+        self.c.execute("DELETE FROM voters WHERE cnp={}".format(current_voter.cnp))
         self.conn.commit()
 
-
-
-
+    def remove_from_election_table(self, current_election=None, current_candidate=None):
+        self.c.execute("DELETE FROM '{}' WHERE candidate='{}'".format(current_election.name, current_candidate.name))
+        self.conn.commit()
 
     def close(self):
         self.conn.close()
