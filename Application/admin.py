@@ -30,4 +30,12 @@ class Admin():
         db.close()
 
     def self_check(self):
+        try:
+            nid = int(self.id)
+        except:
+            return False
+        if len(self.password) < 5 or len(self.password) > 15:
+            return False
+
+
         return True

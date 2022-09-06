@@ -3,23 +3,17 @@ from Application.candidate import Candidate
 
 
 class Election():
-    def __init__(self, election_from_db=None, name=None, number_of_candidates=None, begin=None, end=None, transferable_vote=False):
+    def __init__(self, election_from_db=None, name=None, number_of_candidates=None, begin=None, end=None,):
         if election_from_db:
             self.name = election_from_db[0]
             self.number_of_candidates = election_from_db[1]
             self.begin = election_from_db[2]
             self.end = election_from_db[3]
-            self.transferable_vote = election_from_db[4]
         else:
             self.name = name
             self.number_of_candidates = number_of_candidates
             self.begin = begin
             self.end = end
-            self.transferable_vote = transferable_vote
-            """if db:
-                self.extract_from_db()
-            else:
-                self.track = {}"""
 
     def extract_from_db(self):
         pass

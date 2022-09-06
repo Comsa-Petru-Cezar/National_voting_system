@@ -32,8 +32,7 @@ class DBManager():
                             name text,
                             candidates int,
                             begin date,
-                            end date,
-                            tv bool
+                            end date
                             )""")
         self.conn.commit()
 
@@ -59,7 +58,7 @@ class DBManager():
 
     def insert_in_voter_table(self, current_voter=None):
 
-        self.c.execute("INSERT INTO voters VALUES ({})".format(current_voter.cnp))
+        self.c.execute("INSERT INTO voters VALUES ({},'{}')".format(current_voter.cnp, current_voter.region))
         self.conn.commit()
 
     def insert_in_admin_table(self, add_admin=None):
@@ -67,11 +66,10 @@ class DBManager():
         self.conn.commit()
 
     def insert_in_election_tables_table(self, current_election=None):
-        self.c.execute("INSERT INTO election_tables VALUES ('{}',{},{},{},{})".format(current_election.name,
+        self.c.execute("INSERT INTO election_tables VALUES ('{}',{},{},{})".format(current_election.name,
                                                                                 current_election.number_of_candidates,
                                                                                 current_election.begin,
-                                                                                current_election.end,
-                                                                                current_election.transferable_vote
+                                                                                current_election.end
                                                                                 )
                        )
         self.conn.commit()
@@ -86,9 +84,10 @@ class DBManager():
     def select_from_voter_table(self, current_voter=None):
         if current_voter:
             self.c.execute("SELECT * FROM voters WHERE CNP={}".format(current_voter.cnp))
+            select = self.c.fetchone()
         else:
             self.c.execute("SELECT * FROM voters")
-        select = self.c.fetchone()
+            selct = self.c.fetchall()
         #print(select)#c.fetchmany(5)/.fetchone()
         return select
 

@@ -4,6 +4,7 @@ from Application.admin import Admin
 from Application.election import Election
 from Application.candidate import Candidate
 
+
 def admin_login():
     layout = [
         [sg.Text("Welcome?", key="text")],
@@ -120,7 +121,6 @@ def create_election():
         [sg.Text("Number of candidates:"), sg.InputText(key="number")],
         [sg.Text("Begin date dd/mm/yyyy:"), sg.InputText(key="begin")],
         [sg.Text("End date dd/mm/yyyy:"), sg.InputText(key="end")],
-        [sg.Checkbox("Transferable vote", default=False, key="tv")],
         [sg.Button("Create Election")],
         [sg.Button("Done")]
     ]
@@ -131,7 +131,7 @@ def create_election():
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Create Election":
-            current_election = Election(name=values["name"], number_of_candidates=values["number"], begin=values["begin"], end=values["end"], transferable_vote=values["tv"])
+            current_election = Election(name=values["name"], number_of_candidates=values["number"], begin=values["begin"], end=values["end"])
             if not current_election.is_in_db() and current_election.self_check():
                 current_election.add_to_db()
                 create_election_win["text1"].update("Election Created", text_color="white")
