@@ -33,9 +33,19 @@ class Candidate():
         db.remove_from_election_table(current_election=current_election, current_candidate=self)
         db.close()
 
-    def self_check(self):
+    @staticmethod
+    def sql_injection(text):
+        danger_list = [" AND ", " OR ", " SELECT ", " WHERE ", " UNION ", " DELETE ", " INSERT ", " ORDER ", " UPDATE ",
+                       " JOIN ", ",", ")", "'"]
 
+        for d in danger_list:
+            if text.find(d) == -1:
+                return False
         return True
+
+    def self_check(self):
+        return Candidate.sql_injection(self.name)
+
 
     def get_one_vote(self, current_election):
         self.votes = self.votes + 1

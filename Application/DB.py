@@ -30,7 +30,6 @@ class DBManager():
     def create_election_tables_table(self):
         self.c.execute("""CREATE TABLE election_tables (
                             name text,
-                            candidates int,
                             begin date,
                             end date
                             )""")

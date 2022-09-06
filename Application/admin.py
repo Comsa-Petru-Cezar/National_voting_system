@@ -29,6 +29,16 @@ class Admin():
         db.insert_in_admin_table(add_admin=self)
         db.close()
 
+    @staticmethod
+    def sql_injection(text):
+        danger_list = [" AND ", " OR ", " SELECT ", " WHERE ", " UNION ", " DELETE ", " INSERT ", " ORDER ", " UPDATE ",
+                       " JOIN ", ",", ")", "'"]
+
+        for d in danger_list:
+            if text.find(d) == -1:
+                return False
+        return True
+
     def self_check(self):
         try:
             nid = int(self.id)
@@ -37,5 +47,5 @@ class Admin():
         if len(self.password) < 5 or len(self.password) > 15:
             return False
 
+        return Admin.sql_injection(self.password)
 
-        return True

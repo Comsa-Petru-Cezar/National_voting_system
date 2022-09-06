@@ -1,22 +1,19 @@
 from Application.DB import DBManager
 from Application.candidate import Candidate
+from datetime import datetime
 
 
 class Election():
-    def __init__(self, election_from_db=None, name=None, number_of_candidates=None, begin=None, end=None,):
+    def __init__(self, election_from_db=None, name=None, begin=None, end=None,):
         if election_from_db:
             self.name = election_from_db[0]
-            self.number_of_candidates = election_from_db[1]
-            self.begin = election_from_db[2]
-            self.end = election_from_db[3]
+            self.begin = election_from_db[1]
+            self.end = election_from_db[2]
         else:
             self.name = name
-            self.number_of_candidates = number_of_candidates
             self.begin = begin
             self.end = end
 
-    def extract_from_db(self):
-        pass
 
     @classmethod
     def get_elections(cls):
@@ -50,7 +47,32 @@ class Election():
         return candidates_list
         db.close()
 
+    @staticmethod
+    def sql_injection(text):
+        danger_list = [" AND ", " OR ", " SELECT ", " WHERE ", " UNION ", " DELETE ", " INSERT ", " ORDER ", " UPDATE ",
+                       " JOIN ", ",", ")", "'"]
+
+        for d in danger_list:
+            if text.find(d) == -1:
+                return False
+        return True
+
     def self_check(self):
+        Election.sql_injection(self.name)
+        Election.sql_injection(self.begin)
+        Election.sql_injection(self.end)
+
+        try:
+            b = datetime(self.begin, '%d%m%y')
+            e = datetime(self.end, '%d%m%y')
+            if b > e:
+                return False
+        except:
+            return  False
+
+
+
+
         return True
 
     def __repr__(self):
