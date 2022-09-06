@@ -3,7 +3,7 @@ from Application.candidate import Candidate
 
 
 class Election():
-    def __init__(self, election_from_db=None, name=None, number_of_candidates=None, begin=None, end=None, transferable_vote=None):
+    def __init__(self, election_from_db=None, name=None, number_of_candidates=None, begin=None, end=None, transferable_vote=False):
         if election_from_db:
             self.name = election_from_db[0]
             self.number_of_candidates = election_from_db[1]

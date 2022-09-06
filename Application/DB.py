@@ -52,7 +52,6 @@ class DBManager():
                                                     )""".format(current_election.name))
         else:
             self.c.execute("""CREATE TABLE '{}' (
-                                        index int,
                                         candidate text,
                                         votes int
                                         )""".format(current_election.name))
@@ -122,6 +121,10 @@ class DBManager():
 
     def remove_from_election_table(self, current_election=None, current_candidate=None):
         self.c.execute("DELETE FROM '{}' WHERE candidate='{}'".format(current_election.name, current_candidate.name))
+        self.conn.commit()
+
+    def update_candidate_in_election_table(self, current_election=None, current_candidate=None):
+        self.c.execute("UPDATE '{}' set votes = {} WHERE candidate = '{}'".format(current_election.name, current_candidate.votes, current_candidate.name))
         self.conn.commit()
 
     def close(self):

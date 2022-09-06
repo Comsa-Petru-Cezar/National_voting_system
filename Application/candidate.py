@@ -4,14 +4,17 @@ from Application.DB import DBManager
 class Candidate():
 
     def __init__(self, candidate_from_db=None, name=None, transferable=False):
+
         if candidate_from_db:
             self.name = candidate_from_db[0]
+            self.transferable = transferable
             if transferable:
                 self.votes = []
             self.votes = candidate_from_db[1]
         else:
 
             self.name = name
+            self.transferable = transferable
             if transferable:
                 self.votes = []
             self.votes = 0
@@ -35,3 +38,12 @@ class Candidate():
         db = DBManager()
         db.remove_from_election_table(current_election=current_election, current_candidate=self)
         db.close()
+
+    def get_one_vote(self, current_election):
+        self.votes = self.votes + 1
+        print(self.name, " ", self.votes)
+        db = DBManager()
+        db.update_candidate_in_election_table(current_election, self)
+        db.close()
+
+        pass

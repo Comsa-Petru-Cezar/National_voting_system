@@ -1,3 +1,3 @@
-from Application import app_Admin
+from Application import app_admin
 if __name__=='__main__':
-    app_Admin()
+    app_admin()

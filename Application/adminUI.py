@@ -223,7 +223,7 @@ def manage_elections():
 
         if event == "Done" or event == sg.WIN_CLOSED:
             break
-        if event:
+        elif event:
             for e in elections_list:
                 if event == " {} -- ({},{}) ".format(e.name, e.begin, e.end):
                     manage_elections_win.close()
@@ -264,7 +264,7 @@ def admin_main():
     admin_win.close()
 
 
-def app_Admin():
+def app_admin():
     if admin_login():
         admin_main()
 
