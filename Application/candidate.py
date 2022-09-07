@@ -46,10 +46,10 @@ class Candidate():
     def self_check(self):
         return Candidate.sql_injection(self.name)
 
-
-    def get_one_vote(self, current_election):
+    def get_one_vote(self, current_election, current_voter):
         self.votes = self.votes + 1
         db = DBManager()
+        db.insert_in_votes_table(current_voter=current_voter, current_election=current_election)
         db.update_candidate_in_election_table(current_election, self)
         db.close()
 

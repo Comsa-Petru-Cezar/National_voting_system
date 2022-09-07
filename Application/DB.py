@@ -43,8 +43,14 @@ class DBManager():
                                         )""".format(current_election.name))
         self.conn.commit()
 
-    def insert_in_voter_table(self, current_voter=None):
+    def create_votes_table(self):
+        self.c.execute("""CREATE TABLE votes (
+                            CNP integer,
+                            election text
+                            )""")
+        self.conn.commit()
 
+    def insert_in_voter_table(self, current_voter=None):
         self.c.execute("INSERT INTO voters VALUES ({})".format(current_voter.cnp))
         self.conn.commit()
 
@@ -62,6 +68,10 @@ class DBManager():
 
     def insert_in_election_table(self, current_election=None, current_candidate=None):
         self.c.execute("INSERT INTO '{}' VALUES('{}',0)".format(current_election.name, current_candidate.name))
+        self.conn.commit()
+
+    def insert_in_votes_table(self, current_voter, current_election):
+        self.c.execute("INSERT INTO votes VALUES ({},'{}')".format(current_voter.cnp, current_election.name))
         self.conn.commit()
 
     def select_from_voter_table(self, current_voter=None):
@@ -93,6 +103,10 @@ class DBManager():
             self.c.execute("Select * FROM '{}' WHERE candidate='{}'".format(current_election.name, current_candidate.name))
         else:
             self.c.execute("Select * FROM '{}'".format(current_election.name))
+        return self.c.fetchall()
+
+    def get_election_from_voters_table(self, current_voter):
+        self.c.execute("SELECT election FROM votes WHERE CNP={}".format(current_voter.cnp))
         return self.c.fetchall()
 
     def remove_from_voter_table(self, current_voter=None):

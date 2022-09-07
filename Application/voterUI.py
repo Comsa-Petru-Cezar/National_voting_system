@@ -15,9 +15,9 @@ def voter_login():
         event, values = voter_login_win.read()
         if event == "Login":
             current_voter = Voter(cnp=values["cnp"])
-            if current_voter.is_in_db():
+            if current_voter.self_check() and current_voter.is_in_db():
                 voter_login_win.close()
-                return True
+                return current_voter
             else:
                 voter_login_win["text"].update("Login Failed. Please try again.")
                 voter_login_win["cnp"].update("")
@@ -29,7 +29,7 @@ def voter_login():
     return False
 
 
-def vote_on_election(current_election):
+def vote_on_election(current_election, current_voter):
     layout = []
     candidates_list = current_election.get_candidates()
     i = 0
@@ -50,14 +50,14 @@ def vote_on_election(current_election):
             while i <= len(candidates_list) and (not values["{}".format(i)]):
                 i = i + 1
             if i <= len(candidates_list):
-                candidates_list[i-1].get_one_vote(current_election)
+                candidates_list[i-1].get_one_vote(current_election, current_voter)
         break
 
     election_win.close()
 
 
-def voter_main():
-    elections_list = Election.get_elections()
+def voter_main(current_voter):
+    elections_list = Election.get_elections(current_voter)
     layout = []
     for e in elections_list:
         layout.append([sg.Button(" {} -- ({},{}) ".format(e.name, e.begin, e.end))])
@@ -72,14 +72,14 @@ def voter_main():
         elif event:
             for e in elections_list:
                 if event == " {} -- ({},{}) ".format(e.name, e.begin, e.end):
-                    vote_on_election(e)
+                    vote_on_election(current_election=e, current_voter=current_voter)
 
 
     voter_win.close()
 
 
 def app_voter():
-
-    if voter_login():
-        voter_main()
+    current_voter = voter_login()
+    if current_voter:
+        voter_main(current_voter)
 

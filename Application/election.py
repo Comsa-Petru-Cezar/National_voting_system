@@ -16,11 +16,16 @@ class Election():
 
 
     @classmethod
-    def get_elections(cls):
+    def get_elections(cls, current_voter=None):
         db = DBManager()
         elections_list = []
+        if current_voter:
+            voted_list = db.get_election_from_voters_table(current_voter)
+
         for e in db.select_from_election_tables_table():
-            elections_list.append(Election(election_from_db=e))
+            if not current_voter and not ((e[0],) in voted_list):
+
+                elections_list.append(Election(election_from_db=e))
         db.close()
         return elections_list
 
