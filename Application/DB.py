@@ -1,16 +1,10 @@
-#todo
-#
-
-
 import sqlite3
 
 class DBManager():
 
     def __init__(self):
-        try:
-            self.conn = sqlite3.connect('Application/voting.db')
-        except:
-            self.conn = sqlite3.connect('voting.db')
+        self.conn = sqlite3.connect('Application/voting.db')
+
         self.c = self.conn.cursor()
         self.conn.commit()
 
