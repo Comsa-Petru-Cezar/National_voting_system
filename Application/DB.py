@@ -1,9 +1,11 @@
 import sqlite3
+import os, sys
 
 class DBManager():
 
     def __init__(self):
-        self.conn = sqlite3.connect('Application/voting.db')
+        basedir = os.path.dirname(__file__)+"voting.db"
+        self.conn = sqlite3.connect("voting.db")
 
         self.c = self.conn.cursor()
         self.conn.commit()
