@@ -35,7 +35,7 @@ class Admin():
                        " JOIN ", ",", ")", "'"]
 
         for d in danger_list:
-            if text.find(d) == -1:
+            if text.find(d) != -1:
                 return False
         return True
 
@@ -43,8 +43,10 @@ class Admin():
         try:
             nid = int(self.id)
         except:
+            print("12")
             return False
         if len(self.password) < 5 or len(self.password) > 15:
+            print("13")
             return False
 
         return Admin.sql_injection(self.password)

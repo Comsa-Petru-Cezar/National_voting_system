@@ -39,7 +39,7 @@ class Candidate():
                        " JOIN ", ",", ")", "'"]
 
         for d in danger_list:
-            if text.find(d) == -1:
+            if text.find(d) != -1:
                 return False
         return True
 

@@ -24,7 +24,11 @@ class Election():
             voted_list = db.get_election_from_voters_table(current_voter)
 
         for e in db.select_from_election_tables_table():
-            if not current_voter or not ((e[0],) in voted_list):
+            if current_voter:
+                today = datetime.today().date()
+                if not (e[0],) in voted_list and datetime.strptime(e[1], "%d/%m/%Y").date() <= today and datetime.strptime(e[2], "%d/%m/%Y").date() >= today:
+                    elections_list.append(Election(election_from_db=e))
+            else:
                 elections_list.append(Election(election_from_db=e))
         db.close()
         return elections_list
@@ -58,25 +62,22 @@ class Election():
                        " JOIN ", ",", ")", "'"]
 
         for d in danger_list:
-            if text.find(d) == -1:
+            if text.find(d) != -1:
                 return False
         return True
 
     def self_check(self):
-        Election.sql_injection(self.name)
-        Election.sql_injection(self.begin)
-        Election.sql_injection(self.end)
 
-        #try:
-        b = datetime.strptime(self.begin, "%d/%m/%Y").date()
-        e = datetime.strptime(self.end, "%d/%m/%Y").date()
-        if b > e:
+
+        try:
+            b = datetime.strptime(self.begin, "%d/%m/%Y").date()
+            e = datetime.strptime(self.end, "%d/%m/%Y").date()
+            if b > e:
+                return False
+        except:
             return False
-            print("2")
-        #except:
-            #print('1')
-            #return False
-        return True
+
+        return (Election.sql_injection(self.name) and Election.sql_injection(self.begin) and Election.sql_injection(self.end))
 
     def __repr__(self):
         return "'{}' date: ('{}' - '{}')".format(self.name, self.begin, self.end)

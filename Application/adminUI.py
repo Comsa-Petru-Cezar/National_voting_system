@@ -231,7 +231,7 @@ def admin_main():
     layout = [
         [sg.Button("Insert Voters")],
         [sg.Button("Remove Voters")],
-        [sg.Button("Other Updates")],
+        #[sg.Button("Other Updates")],
         [sg.Button("Create Election")],
         [sg.Button("Manage Elections")],
         [sg.Button("Add Admin")],
