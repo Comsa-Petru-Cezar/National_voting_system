@@ -5,6 +5,10 @@ from Application.election import Election
 
 
 db = DBManager()
+try:
+    db.clean_all()
+except:
+    pass
 db.create_admin_table()
 db.create_voter_table()
 db.create_election_tables_table()

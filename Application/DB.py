@@ -121,5 +121,15 @@ class DBManager():
         self.c.execute("UPDATE '{}' set votes = {} WHERE candidate = '{}'".format(current_election.name, current_candidate.votes, current_candidate.name))
         self.conn.commit()
 
+    def clean_all(self):
+        self.c.execute("DROP TABLE voters")
+        self.c.execute("DROP TABLE admins")
+        tables = self.select_from_election_tables_table()
+        for t in tables:
+            self.c.execute("DROP TABLE '{}'".format(t[0]))
+        self.c.execute("DROP TABLE election_tables")
+        self.c.execute("DROP TABLE votes")
+        self.conn.commit()
+
     def close(self):
         self.conn.close()
