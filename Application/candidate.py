@@ -49,7 +49,6 @@ class Candidate():
 
     def get_one_vote(self, current_election):
         self.votes = self.votes + 1
-        print(self.name, " ", self.votes)
         db = DBManager()
         db.update_candidate_in_election_table(current_election, self)
         db.close()

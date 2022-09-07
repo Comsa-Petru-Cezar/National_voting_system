@@ -68,11 +68,7 @@ class Election():
             if b > e:
                 return False
         except:
-            return  False
-
-
-
-
+            return False
         return True
 
     def __repr__(self):

@@ -135,7 +135,6 @@ def create_election():
             if not current_election.is_in_db() and current_election.self_check():
                 current_election.add_to_db()
                 create_election_win["text1"].update("Election Created", text_color="white")
-                print(current_election.self_check())
             else:
                 create_election_win["text1"].update("Invalid data", text_color="red")
             create_election_win["name"].update("")

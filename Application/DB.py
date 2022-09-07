@@ -36,20 +36,8 @@ class DBManager():
         self.conn.commit()
 
     def create_election_table(self, current_election):
-        if current_election.transferable_vote:
-            text = """CREATE TABLE {} (
-                                                    candidate text,""".format(current_election.name)
-            for c in range(1, current_election.number_of_candidates+1):
-                text = text + """
-                choice {} int,""".format(c)
-            text = text + """
-            )"""
-            self.c.execute("""CREATE TABLE '{}' (
-                                                    candidate text,
-                                                    votes int
-                                                    )""".format(current_election.name))
-        else:
-            self.c.execute("""CREATE TABLE '{}' (
+
+        self.c.execute("""CREATE TABLE '{}' (
                                         candidate text,
                                         votes int
                                         )""".format(current_election.name))
@@ -57,7 +45,7 @@ class DBManager():
 
     def insert_in_voter_table(self, current_voter=None):
 
-        self.c.execute("INSERT INTO voters VALUES ({},'{}')".format(current_voter.cnp, current_voter.region))
+        self.c.execute("INSERT INTO voters VALUES ({})".format(current_voter.cnp))
         self.conn.commit()
 
     def insert_in_admin_table(self, add_admin=None):
@@ -65,8 +53,7 @@ class DBManager():
         self.conn.commit()
 
     def insert_in_election_tables_table(self, current_election=None):
-        self.c.execute("INSERT INTO election_tables VALUES ('{}',{},{},{})".format(current_election.name,
-                                                                                current_election.number_of_candidates,
+        self.c.execute("INSERT INTO election_tables VALUES ('{}',{},{})".format(current_election.name,
                                                                                 current_election.begin,
                                                                                 current_election.end
                                                                                 )
@@ -74,10 +61,7 @@ class DBManager():
         self.conn.commit()
 
     def insert_in_election_table(self, current_election=None, current_candidate=None):
-        if current_election.transferable_vote:
-            pass
-        else:
-            self.c.execute("INSERT INTO '{}' VALUES('{}',0)".format(current_election.name, current_candidate.name))
+        self.c.execute("INSERT INTO '{}' VALUES('{}',0)".format(current_election.name, current_candidate.name))
         self.conn.commit()
 
     def select_from_voter_table(self, current_voter=None):
@@ -87,7 +71,6 @@ class DBManager():
         else:
             self.c.execute("SELECT * FROM voters")
             selct = self.c.fetchall()
-        #print(select)#c.fetchmany(5)/.fetchone()
         return select
 
     def select_from_admin_table(self, current_admin=None, id=None):
@@ -96,7 +79,6 @@ class DBManager():
         elif id:
             self.c.execute("SELECT * FROM admins WHERE id={} and password='{}'".format(current_admin.id))
         select = self.c.fetchone()
-        #print(select)  # c.fetchmany(5)/.fetchone()
         return select
 
     def select_from_election_tables_table(self, current_election=None):
