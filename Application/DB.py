@@ -30,8 +30,8 @@ class DBManager():
     def create_election_tables_table(self):
         self.c.execute("""CREATE TABLE election_tables (
                             name text,
-                            begin date,
-                            end date
+                            begin text,
+                            end text
                             )""")
         self.conn.commit()
 
@@ -59,7 +59,7 @@ class DBManager():
         self.conn.commit()
 
     def insert_in_election_tables_table(self, current_election=None):
-        self.c.execute("INSERT INTO election_tables VALUES ('{}',{},{})".format(current_election.name,
+        self.c.execute("INSERT INTO election_tables VALUES ('{}','{}','{}')".format(current_election.name,
                                                                                 current_election.begin,
                                                                                 current_election.end
                                                                                 )

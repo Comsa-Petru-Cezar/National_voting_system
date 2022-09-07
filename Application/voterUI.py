@@ -60,7 +60,7 @@ def voter_main(current_voter):
     elections_list = Election.get_elections(current_voter)
     layout = []
     for e in elections_list:
-        layout.append([sg.Button(" {} -- ({},{}) ".format(e.name, e.begin, e.end))])
+        layout.append([sg.Button(" {} -- ({},{}) ".format(e.name, e.begin, e.end), key="{}".format(e.name), )])
     layout.append([sg.Button("Done")])
 
     voter_win = sg.Window(title="National Voting System", layout=layout)
@@ -71,10 +71,10 @@ def voter_main(current_voter):
             break
         elif event:
             for e in elections_list:
-                if event == " {} -- ({},{}) ".format(e.name, e.begin, e.end):
+                if event == "{}".format(e.name):
                     vote_on_election(current_election=e, current_voter=current_voter)
-
-
+                    voter_win["{}".format(e.name)].update(visible=False)
+                    voter_win.refresh()
     voter_win.close()
 
 

@@ -118,7 +118,6 @@ def create_election():
     layout = [
         [sg.Text("", key="text1"), ],
         [sg.Text("Name:"), sg.InputText(key="name")],
-        [sg.Text("Number of candidates:"), sg.InputText(key="number")],
         [sg.Text("Begin date dd/mm/yyyy:"), sg.InputText(key="begin")],
         [sg.Text("End date dd/mm/yyyy:"), sg.InputText(key="end")],
         [sg.Button("Create Election")],
@@ -131,20 +130,16 @@ def create_election():
         if event == "Done" or event == sg.WIN_CLOSED:
             break
         if event == "Create Election":
-            current_election = Election(name=values["name"], number_of_candidates=values["number"], begin=values["begin"], end=values["end"])
+            current_election = Election(name=values["name"], begin=values["begin"], end=values["end"])
             if not current_election.is_in_db() and current_election.self_check():
                 current_election.add_to_db()
                 create_election_win["text1"].update("Election Created", text_color="white")
             else:
                 create_election_win["text1"].update("Invalid data", text_color="red")
             create_election_win["name"].update("")
-            create_election_win["number"].update("")
             create_election_win["begin"].update("")
             create_election_win["end"].update("")
-            create_election_win["tv"].update("")
             create_election_win.refresh()
-
-
 
     create_election_win.close()
 

@@ -19,12 +19,12 @@ class Election():
     def get_elections(cls, current_voter=None):
         db = DBManager()
         elections_list = []
+        voted_list = []
         if current_voter:
             voted_list = db.get_election_from_voters_table(current_voter)
 
         for e in db.select_from_election_tables_table():
-            if not current_voter and not ((e[0],) in voted_list):
-
+            if not current_voter or not ((e[0],) in voted_list):
                 elections_list.append(Election(election_from_db=e))
         db.close()
         return elections_list
@@ -67,14 +67,16 @@ class Election():
         Election.sql_injection(self.begin)
         Election.sql_injection(self.end)
 
-        try:
-            b = datetime(self.begin, '%d%m%y')
-            e = datetime(self.end, '%d%m%y')
-            if b > e:
-                return False
-        except:
+        #try:
+        b = datetime.strptime(self.begin, "%d/%m/%Y").date()
+        e = datetime.strptime(self.end, "%d/%m/%Y").date()
+        if b > e:
             return False
+            print("2")
+        #except:
+            #print('1')
+            #return False
         return True
 
     def __repr__(self):
-        return "'{}' date: ('{}' - '{}') stv: ".format(self.name, self.begin, self.end, self.transferable_vote)
+        return "'{}' date: ('{}' - '{}')".format(self.name, self.begin, self.end)
